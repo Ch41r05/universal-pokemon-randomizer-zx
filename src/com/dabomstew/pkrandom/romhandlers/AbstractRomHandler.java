@@ -28,7 +28,7 @@ package com.dabomstew.pkrandom.romhandlers;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -397,7 +397,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             starterBstPokes = new ArrayList<>();
             List<Pokemon> allPokes = allowAltFormes ? this.getPokemonInclFormes().stream().filter(pk -> pk == null || !pk.actuallyCosmetic).toList() : this.getPokemon();
             for (Pokemon pk : allPokes) {
-                if (pk != null && pk.bstForPowerLevels() >= 300 && pk.bstForPowerLevels() <= 350 && pk.evolutionsFrom.size() == 0 && pk.evolutionsTo.size() > 0) {
+                if (pk != null && pk.bstForPowerLevels() >= 300 && pk.bstForPowerLevels() <= 350 && pk.evolutionsFrom.size() > 0 && pk.evolutionsTo.size() == 0) {
                     // Add pokémon to available pokémon list
                     starterBstPokes.add(pk);
                 }
@@ -3807,9 +3807,9 @@ public abstract class AbstractRomHandler implements RomHandler {
             banned.addAll(getIrregularFormes());
         }
         for (int i = 0; i < starterCount; i++) {
-            Pokemon pkmn = random2EvosPokemon(allowAltFormes);
+            Pokemon pkmn = randomStarterBstPokemon(allowAltFormes);
             while (pickedStarters.contains(pkmn) || banned.contains(pkmn)) {
-                pkmn = random2EvosPokemon(allowAltFormes);
+                pkmn = randomStarterBstPokemon(allowAltFormes);
             }
             pickedStarters.add(pkmn);
         }

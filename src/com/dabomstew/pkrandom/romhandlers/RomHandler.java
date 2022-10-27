@@ -175,7 +175,7 @@ public interface RomHandler {
     // Should make a good starter Pokemon
     Pokemon random2EvosPokemon(boolean allowAltFormes);
 
-    // Give a random Pokemon who has 2 evolution stages
+    // Give a random Pokemon who has bst similar to base starter forms
     // Should make a good starter Pokemon
     Pokemon randomStarterBstPokemon(boolean allowAltFormes);
 
