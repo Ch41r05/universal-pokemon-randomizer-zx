@@ -126,9 +126,9 @@ public interface RomHandler {
 
     void randomizeBasicTwoEvosStarters(Settings settings);
 
-    List<Pokemon> getPickedStarters();
+    void randomizeBasicBstStarters(Settings settings);
 
-    boolean supportsStarterHeldItems();
+    List<Pokemon> getPickedStarters();
 
     List<Integer> getStarterHeldItems();
 
@@ -174,6 +174,10 @@ public interface RomHandler {
     // Give a random Pokemon who has 2 evolution stages
     // Should make a good starter Pokemon
     Pokemon random2EvosPokemon(boolean allowAltFormes);
+
+    // Give a random Pokemon who has 2 evolution stages
+    // Should make a good starter Pokemon
+    Pokemon randomStarterBstPokemon(boolean allowAltFormes);
 
     // =============
     // Pokemon Types
@@ -236,8 +240,6 @@ public interface RomHandler {
     void changeCatchRates(Settings settings);
 
     void minimumCatchRate(int rateNonLegendary, int rateLegendary);
-
-    void enableGuaranteedPokemonCatching();
 
     // ===============
     // Trainer Pokemon

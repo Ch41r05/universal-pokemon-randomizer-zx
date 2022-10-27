@@ -319,8 +319,6 @@ public class Gen7Constants {
 
     public static final String friendshipValueForEvoLocator = "DC0050E3F700002A";
 
-    public static final String perfectOddsBranchLocator = "050000BA000050E3";
-
     public static int getPokemonCount(int romType) {
         if (romType == Type_SM) {
             return pokemonCountSM;

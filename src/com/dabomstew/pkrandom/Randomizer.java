@@ -271,6 +271,10 @@ public class Randomizer {
                 romHandler.randomizeBasicTwoEvosStarters(settings);
                 startersChanged = true;
                 break;
+            case RANDOM_WITH_SAME_BST:
+                romHandler.randomizeBasicBstStarters(settings);
+                startersChanged = true;
+                break;
             default:
                 break;
         }
