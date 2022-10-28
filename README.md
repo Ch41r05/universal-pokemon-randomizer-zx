@@ -1,8 +1,10 @@
-Universal Pokemon Randomizer ZX by Ajarmar
+A fork of the Universal Pokemon Randomizer ZX by Ajarmar
 
 With significant contributions from darkeye, cleartonic
 
 Based on the Universal Pokemon Randomizer by Dabomstew
+
+This fork contains some additional options to give other randomization choices
 
 # Info
 
