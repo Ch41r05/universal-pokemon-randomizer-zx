@@ -375,6 +375,7 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     private List<Pokemon> twoEvoPokes;
+    private List<Pokemon> starterBstPokes;
 
     @Override
     public Pokemon random2EvosPokemon(boolean allowAltFormes) {
@@ -403,6 +404,22 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
         return twoEvoPokes.get(this.random.nextInt(twoEvoPokes.size()));
+    }
+
+    @Override
+    public Pokemon randomStarterBstPokemon(boolean allowAltFormes) {
+        if (starterBstPokes == null) {
+            // Prepare the list
+            starterBstPokes = new ArrayList<>();
+            List<Pokemon> allPokes = allowAltFormes ? this.getPokemonInclFormes().stream().filter(pk -> pk == null || !pk.actuallyCosmetic).collect(Collectors.toList()) : this.getPokemon();
+            for (Pokemon pk : allPokes) {
+                if (pk != null && pk.bstForPowerLevels() >= 300 && pk.bstForPowerLevels() <= 350 && pk.evolutionsFrom.size() > 0 && pk.evolutionsTo.size() == 0) {
+                    // Add pokémon to available pokémon list
+                    starterBstPokes.add(pk);
+                }
+            }
+        }
+        return starterBstPokes.get(this.random.nextInt(starterBstPokes.size()));
     }
 
     @Override
@@ -4039,6 +4056,32 @@ public abstract class AbstractRomHandler implements RomHandler {
             Pokemon pkmn = random2EvosPokemon(allowAltFormes);
             while (pickedStarters.contains(pkmn) || banned.contains(pkmn)) {
                 pkmn = random2EvosPokemon(allowAltFormes);
+            }
+            pickedStarters.add(pkmn);
+        }
+        setStarters(pickedStarters);
+    }
+
+    @Override
+    public void randomizeBasicBstStarters(Settings settings) {
+        boolean abilitiesUnchanged = settings.getAbilitiesMod() == Settings.AbilitiesMod.UNCHANGED;
+        boolean allowAltFormes = settings.isAllowStarterAltFormes();
+        boolean banIrregularAltFormes = settings.isBanIrregularAltFormes();
+
+        int starterCount = starterCount();
+        pickedStarters = new ArrayList<>();
+        List<Pokemon> banned = getBannedFormesForPlayerPokemon();
+        if (abilitiesUnchanged) {
+            List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
+            banned.addAll(abilityDependentFormes);
+        }
+        if (banIrregularAltFormes) {
+            banned.addAll(getIrregularFormes());
+        }
+        for (int i = 0; i < starterCount; i++) {
+            Pokemon pkmn = randomStarterBstPokemon(allowAltFormes);
+            while (pickedStarters.contains(pkmn) || banned.contains(pkmn)) {
+                pkmn = randomStarterBstPokemon(allowAltFormes);
             }
             pickedStarters.add(pkmn);
         }

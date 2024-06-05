@@ -346,6 +346,8 @@ public class NewRandomizerGUI {
 
     private BatchRandomizationSettings batchRandomizationSettings;
 
+    private JRadioButton spRandomStarterBstRadioButton;
+
     public NewRandomizerGUI() {
         ToolTipManager.sharedInstance().setInitialDelay(400);
         ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
@@ -427,6 +429,7 @@ public class NewRandomizerGUI {
         spCustomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         spRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
         spRandomTwoEvosRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        spRandomStarterBstRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpSwapLegendariesSwapStandardsRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1502,6 +1505,7 @@ public class NewRandomizerGUI {
         spRandomCompletelyRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.COMPLETELY_RANDOM);
         spUnchangedRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.UNCHANGED);
         spRandomTwoEvosRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.RANDOM_WITH_TWO_EVOLUTIONS);
+        spRandomStarterBstRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.RANDOM_WITH_SAME_BST);
         spRandomizeStarterHeldItemsCheckBox.setSelected(settings.isRandomizeStartersHeldItems());
         spBanBadItemsCheckBox.setSelected(settings.isBanBadRandomStarterHeldItems());
         spAllowAltFormesCheckBox.setSelected(settings.isAllowStarterAltFormes());
@@ -1743,7 +1747,8 @@ public class NewRandomizerGUI {
         settings.setRemoveTimeBasedEvolutions(peRemoveTimeBasedEvolutionsCheckBox.isSelected());
 
         settings.setStartersMod(spUnchangedRadioButton.isSelected(), spCustomRadioButton.isSelected(), spRandomCompletelyRadioButton.isSelected(),
-                spRandomTwoEvosRadioButton.isSelected());
+                spRandomTwoEvosRadioButton.isSelected()
+                , spRandomStarterBstRadioButton.isSelected());
         settings.setRandomizeStartersHeldItems(spRandomizeStarterHeldItemsCheckBox.isSelected() && spRandomizeStarterHeldItemsCheckBox.isVisible());
         settings.setBanBadRandomStarterHeldItems(spBanBadItemsCheckBox.isSelected() && spBanBadItemsCheckBox.isVisible());
         settings.setAllowStarterAltFormes(spAllowAltFormesCheckBox.isSelected() && spAllowAltFormesCheckBox.isVisible());
@@ -2158,6 +2163,9 @@ public class NewRandomizerGUI {
         spRandomTwoEvosRadioButton.setVisible(true);
         spRandomTwoEvosRadioButton.setEnabled(false);
         spRandomTwoEvosRadioButton.setSelected(false);
+        spRandomStarterBstRadioButton.setVisible(true);
+        spRandomStarterBstRadioButton.setEnabled(false);
+        spRandomStarterBstRadioButton.setSelected(false);
         spComboBox1.setVisible(true);
         spComboBox1.setEnabled(false);
         spComboBox1.setSelectedIndex(0);
@@ -2756,6 +2764,7 @@ public class NewRandomizerGUI {
             spCustomRadioButton.setEnabled(true);
             spRandomCompletelyRadioButton.setEnabled(true);
             spRandomTwoEvosRadioButton.setEnabled(true);
+            spRandomStarterBstRadioButton.setEnabled(true);
             spAllowAltFormesCheckBox.setVisible(romHandler.hasStarterAltFormes());
             if (romHandler.isYellow()) {
                 spComboBox3.setVisible(false);
@@ -3070,6 +3079,11 @@ public class NewRandomizerGUI {
                 spRandomTwoEvosRadioButton.setSelected(false);
                 spRandomCompletelyRadioButton.setSelected(true);
             }
+            spRandomStarterBstRadioButton.setEnabled(false);
+            if (spRandomStarterBstRadioButton.isSelected()) {
+                spRandomStarterBstRadioButton.setSelected(false);
+                spRandomCompletelyRadioButton.setSelected(true);
+            }
             paFollowEvolutionsCheckBox.setSelected(false);
             tmFollowEvolutionsCheckBox.setSelected(false);
             mtFollowEvolutionsCheckBox.setSelected(false);
@@ -3100,6 +3114,7 @@ public class NewRandomizerGUI {
             // except this one, so manually enable it again.
             ptRandomFollowEvolutionsRadioButton.setEnabled(true);
             spRandomTwoEvosRadioButton.setEnabled(true);
+            spRandomStarterBstRadioButton.setEnabled(true);
 
             // The controls that make evolutions easier/possible, however,
             // need to all be manually re-enabled.
