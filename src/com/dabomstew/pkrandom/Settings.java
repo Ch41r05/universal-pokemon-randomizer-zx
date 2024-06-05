@@ -336,7 +336,7 @@ public class Settings {
         }
         int version = ByteBuffer.wrap(versionBytes).getInt();
         if (((version >> 24) & 0xFF) > 0 && ((version >> 24) & 0xFF) <= 172) {
-            throw new UnsupportedOperationException("The settings file is too old to update. Please download v4.0.2 of the randomizer (or earlier) to update it.");
+            throw new UnsupportedOperationException("The settings file is too old to update and cannot be loaded.");
         }
         if (version > VERSION) {
             throw new UnsupportedOperationException("Cannot read settings from a newer version of the randomizer.");
@@ -913,7 +913,12 @@ public class Settings {
         }
 
         // starters
-        List<Pokemon> romPokemon = rh.getPokemonInclFormes();
+        List<Pokemon> romPokemon;
+        if (rh.hasStarterAltFormes()) {
+            romPokemon = rh.getPokemonInclFormes();
+        } else {
+            romPokemon = rh.getPokemon();
+        }
         List<Pokemon> romStarters = rh.getStarters();
         for (int starter = 0; starter < 3; starter++) {
             if (this.customStarters[starter] < 0 || this.customStarters[starter] >= romPokemon.size()) {
@@ -955,7 +960,7 @@ public class Settings {
             this.setAllowWonderGuard(false);
         }
 
-        if (!(rh instanceof Gen2RomHandler || rh instanceof Gen3RomHandler)) {
+        if (!rh.supportsStarterHeldItems()) {
             // starter held items don't exist
             this.setRandomizeStartersHeldItems(false);
             this.setBanBadRandomStarterHeldItems(false);

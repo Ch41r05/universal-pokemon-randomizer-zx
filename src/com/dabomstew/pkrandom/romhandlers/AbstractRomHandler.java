@@ -637,6 +637,37 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
     }
 
+    private int pickRandomAbilityVariation(int selectedAbility, int... alreadySetAbilities) {
+        int newAbility = selectedAbility;
+
+        while (true) {
+            Map<Integer, List<Integer>> abilityVariations = getAbilityVariations();
+            for (int baseAbility: abilityVariations.keySet()) {
+                if (selectedAbility == baseAbility) {
+                    List<Integer> variationsForThisAbility = abilityVariations.get(selectedAbility);
+                    newAbility = variationsForThisAbility.get(this.random.nextInt(variationsForThisAbility.size()));
+                    break;
+                }
+            }
+
+            boolean repeat = false;
+            for (int alreadySetAbility : alreadySetAbilities) {
+                if (alreadySetAbility == newAbility) {
+                    repeat = true;
+                    break;
+                }
+            }
+
+            if (!repeat) {
+                break;
+            }
+
+
+        }
+
+        return newAbility;
+    }
+
     private int pickRandomAbility(int maxAbility, List<Integer> bannedAbilities, boolean useVariations,
                                   int... alreadySetAbilities) {
         int newAbility;
@@ -658,14 +689,7 @@ public abstract class AbstractRomHandler implements RomHandler {
 
             if (!repeat) {
                 if (useVariations) {
-                    Map<Integer,List<Integer>> abilityVariations = getAbilityVariations();
-                    for (int baseAbility: abilityVariations.keySet()) {
-                        if (newAbility == baseAbility) {
-                            List<Integer> variationsForThisAbility = abilityVariations.get(newAbility);
-                            newAbility = variationsForThisAbility.get(this.random.nextInt(variationsForThisAbility.size()));
-                            break;
-                        }
-                    }
+                    newAbility = pickRandomAbilityVariation(newAbility, alreadySetAbilities);
                 }
                 break;
             }
@@ -716,7 +740,6 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
         // Assume EITHER catch em all OR type themed OR match strength for now
         if (catchEmAll) {
-
             List<Pokemon> allPokes;
             if (allowAltFormes) {
                 allPokes = noLegendaries ? new ArrayList<>(noLegendaryListInclFormes) : new ArrayList<>(
@@ -735,6 +758,13 @@ public abstract class AbstractRomHandler implements RomHandler {
                     pickablePokemon.removeAll(area.bannedPokemon);
                 }
                 for (Encounter enc : area.encounters) {
+                    // In Catch 'Em All mode, don't randomize encounters for Pokemon that are banned for
+                    // wild encounters. Otherwise, it may be impossible to obtain this Pokemon unless it
+                    // randomly appears as a static or unless it becomes a random evolution.
+                    if (banned.contains(enc.pokemon)) {
+                        continue;
+                    }
+
                     // Pick a random pokemon
                     if (pickablePokemon.size() == 0) {
                         // Only banned pokes are left, ignore them and pick
@@ -935,7 +965,6 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
             allPokes.removeAll(banned);
             for (EncounterSet area : scrambledEncounters) {
-                // Poke-set
                 Set<Pokemon> inArea = pokemonInArea(area);
                 // Build area map using catch em all
                 Map<Pokemon, Pokemon> areaMap = new TreeMap<>();
@@ -989,6 +1018,12 @@ public abstract class AbstractRomHandler implements RomHandler {
                     }
                 }
                 for (Encounter enc : area.encounters) {
+                    // In Catch 'Em All mode, don't randomize encounters for Pokemon that are banned for
+                    // wild encounters. Otherwise, it may be impossible to obtain this Pokemon unless it
+                    // randomly appears as a static or unless it becomes a random evolution.
+                    if (banned.contains(enc.pokemon)) {
+                        continue;
+                    }
                     // Apply the map
                     enc.pokemon = areaMap.get(enc.pokemon);
                     setFormeForEncounter(enc, enc.pokemon);
@@ -1928,7 +1963,6 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean giveToImportantPokemon = settings.isRandomizeHeldItemsForImportantTrainerPokemon();
         boolean giveToRegularPokemon = settings.isRandomizeHeldItemsForRegularTrainerPokemon();
         boolean highestLevelOnly = settings.isHighestLevelGetsItemsForTrainers();
-        boolean betterMovesets = settings.isBetterTrainerMovesets();
 
         List<Move> moves = this.getMoves();
         Map<Integer, List<MoveLearnt>> movesets = this.getMovesLearnt();
@@ -3318,6 +3352,45 @@ public abstract class AbstractRomHandler implements RomHandler {
             if (generationOfPokemon() == 7) {
                 // Multi-Attack 120 Power
                 updateMovePower(moves, Moves.multiAttack, 120);
+            }
+        }
+
+        if (generation >= 9 && generationOfPokemon() < 9) {
+            // Gen 1
+            // Recover 5 PP
+            updateMovePP(moves, Moves.recover, 5);
+            // Soft-Boiled 5 PP
+            updateMovePP(moves, Moves.softBoiled, 5);
+            // Rest 5 PP
+            updateMovePP(moves, Moves.rest, 5);
+
+            if (generationOfPokemon() >= 2) {
+                // Milk Drink 5 PP
+                updateMovePP(moves, Moves.milkDrink, 5);
+            }
+
+            if (generationOfPokemon() >= 3) {
+                // Slack Off 5 PP
+                updateMovePP(moves, Moves.slackOff, 5);
+            }
+
+            if (generationOfPokemon() >= 4) {
+                // Roost 5 PP
+                updateMovePP(moves, Moves.roost, 5);
+            }
+            
+            if (generationOfPokemon() >= 7) {
+                // Shore Up 5 PP
+                updateMovePP(moves, Moves.shoreUp, 5);
+            }
+
+            if (generationOfPokemon() >= 8) {
+                // Grassy Glide 60 Power
+                updateMovePower(moves, Moves.grassyGlide, 60);
+                // Wicked Blow 75 Power
+                updateMovePower(moves, Moves.wickedBlow, 75);
+                // Glacial Lance 120 Power
+                updateMovePower(moves, Moves.glacialLance, 120);
             }
         }
     }
@@ -5218,7 +5291,7 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         Collections.shuffle(newItems, this.random);
         Collections.shuffle(newTMs, this.random);
-
+        
         this.setRegularFieldItems(newItems);
         this.setFieldTMs(newTMs);
     }

@@ -539,6 +539,12 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 (romEntry.romType == Gen4Constants.Type_Plat && romEntry.tweakFiles.containsKey("NewRoamerSubroutineTweak")) ||
                 (romEntry.romType == Gen4Constants.Type_HGSS && romEntry.tweakFiles.containsKey("NewRoamerSubroutineTweak"));
 
+        try {
+            computeCRC32sForRom();
+        } catch (IOException e) {
+            throw new RandomizerIOException(e);
+        }
+
         // We want to guarantee that the catching tutorial in HGSS has Ethan/Lyra's new Pokemon. We also
         // want to allow the option of randomizing the enemy Pokemon too. Unfortunately, the latter can
         // occur *before* the former, but there's no guarantee that it will even happen. Since we *know*
@@ -547,12 +553,6 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             int extendBy = romEntry.getInt("Arm9ExtensionSize");
             arm9 = extendARM9(arm9, extendBy, romEntry.getString("TCMCopyingPrefix"), Gen4Constants.arm9Offset);
             genericIPSPatch(arm9, "NewCatchingTutorialSubroutineTweak");
-        }
-
-        try {
-            computeCRC32sForRom();
-        } catch (IOException e) {
-            throw new RandomizerIOException(e);
         }
     }
 
@@ -3102,6 +3102,13 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
+    public List<Pokemon> bannedForWildEncounters() {
+        // Ban Unown in DPPt because you can't get certain letters outside of Solaceon Ruins.
+        // Ban Unown in HGSS because they don't show up unless you complete a puzzle in the Ruins of Alph.
+        return new ArrayList<>(Collections.singletonList(pokes[Species.unown]));
+    }
+
+    @Override
     public List<Pokemon> getBannedFormesForTrainerPokemon() {
         List<Pokemon> banned = new ArrayList<>();
         if (romEntry.romType != Gen4Constants.Type_DP) {
@@ -4772,12 +4779,20 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 while (Gen4Constants.hgssBannedOverworldPokemon.contains(marillReplacement)) {
                     marillReplacement = this.random.nextInt(548) + 297;
                 }
+
                 byte[] fieldOverlay = readOverlay(romEntry.getInt("FieldOvlNumber"));
                 String prefix = Gen4Constants.lyraEthanMarillSpritePrefix;
                 int offset = find(fieldOverlay, prefix);
                 if (offset > 0) {
                     offset += prefix.length() / 2; // because it was a prefix
                     writeWord(fieldOverlay, offset, marillReplacement);
+                    if (Gen4Constants.hgssBigOverworldPokemon.contains(marillReplacement)) {
+                        // Write the constant to indicate it's big (0x208 | (20 << 10))
+                        writeWord(fieldOverlay, offset + 2, 0x5208);
+                    } else {
+                        // Write the constant to indicate it's normal-sized (0x227 | (19 << 10))
+                        writeWord(fieldOverlay, offset + 2, 0x4E27);
+                    }
                 }
                 writeOverlay(romEntry.getInt("FieldOvlNumber"), fieldOverlay);
 
@@ -5660,6 +5675,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     @Override
     public boolean isRomValid() {
         if (romEntry.arm9ExpectedCRC32 != actualArm9CRC32) {
+            System.out.println(actualArm9CRC32);
             return false;
         }
 
