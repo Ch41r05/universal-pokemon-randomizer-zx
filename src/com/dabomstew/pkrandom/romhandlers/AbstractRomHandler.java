@@ -413,7 +413,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             starterBstPokes = new ArrayList<>();
             List<Pokemon> allPokes = allowAltFormes ? this.getPokemonInclFormes().stream().filter(pk -> pk == null || !pk.actuallyCosmetic).collect(Collectors.toList()) : this.getPokemon();
             for (Pokemon pk : allPokes) {
-                if (pk != null && pk.bstForPowerLevels() >= 300 && pk.bstForPowerLevels() <= 350 && pk.evolutionsFrom.size() > 0 && pk.evolutionsTo.size() == 0) {
+                if (pk != null && pk.bstForPowerLevels() >= 300 && pk.bstForPowerLevels() <= 350 && !pk.evolutionsFrom.isEmpty() && pk.evolutionsTo.isEmpty() && !pk.evolutionsFrom.get(0).to.evolutionsFrom.isEmpty() && pk.evolutionsFrom.get(0).to.evolutionsFrom.get(0).to.bstForPowerLevels() >= 500 && pk.evolutionsFrom.get(0).to.evolutionsFrom.get(0).to.bstForPowerLevels() <= 555) {
                     // Add pokémon to available pokémon list
                     starterBstPokes.add(pk);
                 }
